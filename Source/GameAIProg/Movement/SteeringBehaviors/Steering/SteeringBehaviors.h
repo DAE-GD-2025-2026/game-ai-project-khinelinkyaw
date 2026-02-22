@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Movement/SteeringBehaviors/SteeringHelpers.h>
-#include "Kismet/KismetMathLibrary.h"
 
 class ASteeringAgent;
 
@@ -39,5 +38,27 @@ class Flee : public ISteeringBehavior
 public:
 	Flee() = default;
 	virtual ~Flee() override = default;
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+};
+
+class Arrive : public ISteeringBehavior
+{
+private:
+	float TargetRadius{200.f};
+	float SlowRadius{600.f};
+	float OriginalSpeed{};
+	bool IsSlowing{false};
+	
+public:
+	Arrive() = default;
+	virtual ~Arrive() override = default;
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+};
+
+class Face : public ISteeringBehavior
+{
+	public:
+	Face() = default;
+	virtual ~Face() override = default;
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 };
