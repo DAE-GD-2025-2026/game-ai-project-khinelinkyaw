@@ -1,5 +1,6 @@
 #include "SteeringBehaviors.h"
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 //SEEK
 //*******
@@ -63,6 +64,14 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
 	Steering.LinearVelocity = FVector2D::Zero();
+	
+	FVector const FacingVector{ Agent.GetActorRotation().Vector()};
+	FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector()};
+	
+	FVector CrossProduct {FVector::CrossProduct(FacingVector, TargetDirection)};
+	CrossProduct.Normalize();
+	
+	Steering.AngularVelocity = CrossProduct.Z;
 	
 	return Steering;
 }

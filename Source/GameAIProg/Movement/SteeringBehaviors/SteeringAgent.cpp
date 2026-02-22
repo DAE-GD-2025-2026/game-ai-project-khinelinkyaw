@@ -30,17 +30,10 @@ void ASteeringAgent::Tick(float DeltaTime)
 	{
 		SteeringOutput const Output = SteeringBehavior->CalculateSteering(DeltaTime, *this);
 		
-		/*if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				5.f,
-				FColor::Yellow,
-				FString::Printf(TEXT("Velocity: %f"), Output.AngularVelocity)
-				);
-		}*/
-		// The LinearVelocity get normalized
 		AddMovementInput(FVector{Output.LinearVelocity, 0.f});
+		
+		FRotator NewRotation = FRotator{0.f, 5.f, 0.f} * Output.AngularVelocity;
+		AddActorLocalRotation(NewRotation);
 	}
 }
 
