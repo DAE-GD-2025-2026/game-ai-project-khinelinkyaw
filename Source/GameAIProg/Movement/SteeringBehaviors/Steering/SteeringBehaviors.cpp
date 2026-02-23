@@ -17,7 +17,11 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	// TODO: Show a cool thing
 
 	// TODO: Add debug rendering for grades :)
-
+	if (Steering.LinearVelocity.IsNearlyZero())
+	{
+		Steering.IsValid = false;
+	}
+	
 	return Steering;
 }
 
@@ -72,6 +76,16 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	CrossProduct.Normalize();
 	
 	Steering.AngularVelocity = CrossProduct.Z;
+	
+	return Steering;
+}
+
+SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput Steering{};
+	FVector2D const PredictedPosition { Target.Position + (Target.LinearVelocity) };
+	
+	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
 	
 	return Steering;
 }
