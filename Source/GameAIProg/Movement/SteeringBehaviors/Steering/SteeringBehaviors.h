@@ -27,12 +27,12 @@ protected:
 // Your own SteeringBehaviors should follow here...
 class Seek : public ISteeringBehavior
 {
-private:
-	float Margin{5.f};
 public:
 	Seek() = default;
 	virtual ~Seek() override = default;
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	
+	static FVector2D CalculateLinearVelocity(float DeltaT, ASteeringAgent const& Agent, FVector2D const& TargetPosition, float StopMargin = 5.0f);
 };
 
 class Flee : public ISteeringBehavior
@@ -85,7 +85,13 @@ class Evade final : public ISteeringBehavior
 
 class Wander final : public ISteeringBehavior
 {
-	public:
+private:
+	float CurrentAngle{};
+	float CircleRadius{75.f};
+	float CircleOffset{ 250.f };
+	TPair<int32,int32> WanderRange{-50,50};
+
+public:
 	Wander() = default;
 	virtual ~Wander() override = default;
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;

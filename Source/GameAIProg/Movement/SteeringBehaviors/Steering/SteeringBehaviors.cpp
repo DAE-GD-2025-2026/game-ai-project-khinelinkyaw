@@ -13,33 +13,35 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	
 	Steering.AngularVelocity = Face::CalculateAngularVelocity(DeltaT, Agent, Target);
 
-	FVector2D TargetVelocity = Target.Position - Agent.GetPosition();
+	Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, Target.Position);
+	return Steering;
+}
+
+FVector2D Seek::CalculateLinearVelocity(float DeltaT, ASteeringAgent const& Agent, FVector2D const& TargetPosition, float StopMargin)
+{
+	FVector2D TargetVelocity = TargetPosition - Agent.GetPosition();
 	
 	if (TargetVelocity.Length() > Agent.GetMaxLinearSpeed())
 	{
 		TargetVelocity.Normalize();
 		TargetVelocity *= Agent.GetMaxLinearSpeed();
-		Steering.LinearVelocity = Agent.GetLinearVelocity() + TargetVelocity;
+		return Agent.GetLinearVelocity() + TargetVelocity;
+	}
+	else if (TargetVelocity.Length() < StopMargin)
+	{
+		return FVector2D{};
 	}
 	else
 	{
-		Steering.LinearVelocity = TargetVelocity;
+		return TargetVelocity;
 	}
-	
-	return Steering;
 }
 
 SteeringOutput Flee::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
-
-	Steering.LinearVelocity = - (Target.Position - Agent.GetPosition());
-	// Normalization not needed
-	//Steering.LinearVelocity.Normalize();
-
-	// TODO: Show a cool thing
-
-	// TODO: Add debug rendering for grades :)
+	
+	Steering.LinearVelocity = -Seek::CalculateLinearVelocity(DeltaT, Agent, Target.Position);
 
 	return Steering;
 }
@@ -47,9 +49,10 @@ SteeringOutput Flee::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
-	Steering.LinearVelocity = Target.Position - Agent.GetPosition();
+	auto TargetVector = Target.Position - Agent.GetPosition();
+	Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, Target.Position);
 
-	if (auto const TargetDistance = Steering.LinearVelocity.Length(); TargetDistance < SlowRadius)
+	if (auto const TargetDistance = TargetVector.Length(); TargetDistance < SlowRadius)
 	{
 		if (IsSlowing == false)
 		{
@@ -94,7 +97,7 @@ SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	SteeringOutput Steering{};
 	FVector2D const PredictedPosition { Target.Position + (Target.LinearVelocity) };
 	
-	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
+	Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, PredictedPosition);
 	
 	return Steering;
 }
@@ -104,7 +107,7 @@ SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	SteeringOutput Steering{};
 	FVector2D const PredictedPosition { Target.Position + (Target.LinearVelocity) };
 	
-	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
+	Steering.LinearVelocity = - Seek::CalculateLinearVelocity(DeltaT, Agent, PredictedPosition);
 	
 	return Steering;
 }
@@ -112,5 +115,50 @@ SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
+	
+	FVector2D const CircleCenter { Agent.GetPosition() + Agent.GetForwardVector() * CircleOffset };
+	
+	// Destination Vector
+	DrawDebugCircle(
+		Agent.GetWorld(),
+		FVector{CircleCenter, 0.f},
+		CircleRadius,
+		12,
+		FColor::Orange,
+		false,
+		0.f,
+		0,
+		3.f,
+		FVector::YAxisVector,
+		FVector::XAxisVector,
+		false
+	);
+                
+	
+	auto const AngleChange = FMath::RandRange(WanderRange.Key,WanderRange.Value)/ 10.f;
+	CurrentAngle += AngleChange;
+	
+	FVector2D WanderPosition{};
+	
+	WanderPosition.X = (FMath::Cos(CurrentAngle) * CircleRadius) + CircleCenter.X;
+	WanderPosition.Y = (FMath::Sin(CurrentAngle) * CircleRadius) + CircleCenter.Y;
+	
+	DrawDebugCircle(
+		Agent.GetWorld(),
+		FVector{WanderPosition, 0.f},
+		5.f,
+		12,
+		FColor::Green,
+		false,
+		0.f,
+		0,
+		3.f,
+		FVector::YAxisVector,
+		FVector::XAxisVector,
+		false
+	);
+	
+	Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, WanderPosition);
+	
 	return Steering;
 }

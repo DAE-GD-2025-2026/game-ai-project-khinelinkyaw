@@ -47,6 +47,8 @@ void ASteeringAgent::Tick(float DeltaTime)
     {
         if (SteeringOutput const Output = SteeringBehavior->CalculateSteering(DeltaTime, *this); Output.IsValid) 
         {
+            AddMovementInput(FVector{Output.LinearVelocity, 0.f});
+            
             if (AAIController* AaiController { Cast<AAIController>(GetController())})
             {
                 FRotator NewRotation { GetActorRotation() };
@@ -87,8 +89,6 @@ void ASteeringAgent::Tick(float DeltaTime)
                     false
                 );
             }
-            
-            AddMovementInput(FVector{Output.LinearVelocity, 0.f});
         }
     }
 }
