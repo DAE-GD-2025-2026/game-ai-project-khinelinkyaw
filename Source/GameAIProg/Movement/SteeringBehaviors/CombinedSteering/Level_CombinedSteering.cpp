@@ -97,6 +97,8 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 		ImGui::End();
 	}
 #pragma endregion
-
+	
 	// Combined Steering Update
+ // TODO: implement handling mouse click input for seek
+ // TODO: implement Make sure to also evade the wanderer
 }
