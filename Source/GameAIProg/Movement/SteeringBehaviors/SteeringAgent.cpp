@@ -27,21 +27,68 @@ void ASteeringAgent::BeginDestroy()
 void ASteeringAgent::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
+    
+    FVector ActorLocationOnPlane { GetActorLocation() };
+    ActorLocationOnPlane.Z = 0.f;
+    
+    // Facing Direction
+    DrawDebugLine(
+        GetWorld(),
+        ActorLocationOnPlane,
+        ActorLocationOnPlane + GetActorRotation().Vector() * 150.f,
+        FColor::Red,
+        false,
+        0.0f,
+        0,
+        3.0f
+    );
+    
     if (SteeringBehavior)
     {
         if (SteeringOutput const Output = SteeringBehavior->CalculateSteering(DeltaTime, *this); Output.IsValid) 
         {
             if (AAIController* AaiController { Cast<AAIController>(GetController())})
             {
-                AddMovementInput(FVector{Output.LinearVelocity, 0.f});
-
                 FRotator NewRotation { GetActorRotation() };
                 NewRotation.Yaw += Output.AngularVelocity * GetMaxAngularSpeed() * DeltaTime;
-
+                
                 AaiController->SetControlRotation(NewRotation);
                 FaceRotation(NewRotation);
+                
+                // Destination Vector
+                DrawDebugCircle(
+                    GetWorld(),
+                    ActorLocationOnPlane + FVector{Output.LinearVelocity, 0.f},
+                    10.f,
+                    12,
+                    FColor::Yellow,
+                    false,
+                    0.f,
+                    0,
+                    3.f,
+                    FVector::YAxisVector,
+                    FVector::XAxisVector,
+                    false
+                );
+                
+                // Footsteps
+                DrawDebugCircle(
+                    GetWorld(),
+                    ActorLocationOnPlane,
+                    5.f,
+                    6,
+                    FColor::Red,
+                    false,
+                    4.0f,
+                    0,
+                    3.f,
+                    FVector::YAxisVector,
+                    FVector::XAxisVector,
+                    false
+                );
             }
+            
+            AddMovementInput(FVector{Output.LinearVelocity, 0.f});
         }
     }
 }

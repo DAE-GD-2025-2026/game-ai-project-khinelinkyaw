@@ -1,4 +1,6 @@
 #include "SteeringBehaviors.h"
+
+#include "AITestsCommon.h"
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -8,18 +10,20 @@
 SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
-
-	Steering.LinearVelocity = Target.Position - Agent.GetPosition();
 	
-	// Normalization not needed
-	//Steering.LinearVelocity.Normalize();
+	Steering.AngularVelocity = Face::CalculateAngularVelocity(DeltaT, Agent, Target);
 
-	// TODO: Show a cool thing
-
-	// TODO: Add debug rendering for grades :)
-	if (Steering.LinearVelocity.IsNearlyZero())
+	FVector2D TargetVelocity = Target.Position - Agent.GetPosition();
+	
+	if (TargetVelocity.Length() > Agent.GetMaxLinearSpeed())
 	{
-		Steering.IsValid = false;
+		TargetVelocity.Normalize();
+		TargetVelocity *= Agent.GetMaxLinearSpeed();
+		Steering.LinearVelocity = Agent.GetLinearVelocity() + TargetVelocity;
+	}
+	else
+	{
+		Steering.LinearVelocity = TargetVelocity;
 	}
 	
 	return Steering;
@@ -69,15 +73,20 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	SteeringOutput Steering{};
 	Steering.LinearVelocity = FVector2D::Zero();
 	
-	FVector const FacingVector{ Agent.GetActorRotation().Vector()};
-	FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector()};
+	Steering.AngularVelocity = CalculateAngularVelocity(DeltaT, Agent, Target);
+	
+	return Steering;
+}
+
+float Face::CalculateAngularVelocity(float DeltaT, ASteeringAgent const& Agent, FTargetData const& Target)
+{
+	FVector const FacingVector{ Agent.GetActorRotation().Vector() };
+	FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector() };
 	
 	FVector CrossProduct {FVector::CrossProduct(FacingVector, TargetDirection)};
 	CrossProduct.Normalize();
 	
-	Steering.AngularVelocity = CrossProduct.Z;
-	
-	return Steering;
+	return CrossProduct.Z;
 }
 
 SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
@@ -87,5 +96,21 @@ SteeringOutput Pursuit::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	
 	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
 	
+	return Steering;
+}
+
+SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput Steering{};
+	FVector2D const PredictedPosition { Target.Position + (Target.LinearVelocity) };
+	
+	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
+	
+	return Steering;
+}
+
+SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput Steering{};
 	return Steering;
 }

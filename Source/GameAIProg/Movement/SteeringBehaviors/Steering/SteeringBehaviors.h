@@ -27,6 +27,8 @@ protected:
 // Your own SteeringBehaviors should follow here...
 class Seek : public ISteeringBehavior
 {
+private:
+	float Margin{5.f};
 public:
 	Seek() = default;
 	virtual ~Seek() override = default;
@@ -61,6 +63,8 @@ class Face : public ISteeringBehavior
 	Face() = default;
 	virtual ~Face() override = default;
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+	
+	static float CalculateAngularVelocity(float DeltaT, ASteeringAgent const& Agent, FTargetData const& Target);
 };
 
 class Pursuit final : public ISteeringBehavior
@@ -68,5 +72,21 @@ class Pursuit final : public ISteeringBehavior
 	public:
 	Pursuit() = default;
 	virtual ~Pursuit() override = default;
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+};
+
+class Evade final : public ISteeringBehavior
+{
+	public:
+	Evade() = default;
+	virtual ~Evade() override = default;
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
+};
+
+class Wander final : public ISteeringBehavior
+{
+	public:
+	Wander() = default;
+	virtual ~Wander() override = default;
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
 };
