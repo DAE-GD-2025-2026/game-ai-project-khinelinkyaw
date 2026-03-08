@@ -1,12 +1,7 @@
 #include "SteeringBehaviors.h"
-
-#include "AITestsCommon.h"
 #include "GameAIProg/Movement/SteeringBehaviors/SteeringAgent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-//SEEK
-//*******
-// TODO: Do the Week01 assignment :^)
 SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};

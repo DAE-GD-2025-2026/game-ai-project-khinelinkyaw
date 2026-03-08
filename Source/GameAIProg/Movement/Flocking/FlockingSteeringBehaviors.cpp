@@ -1,7 +1,7 @@
 #include "FlockingSteeringBehaviors.h"
 #include "Flock.h"
-#include "../SteeringAgent.h"
-#include "../SteeringHelpers.h"
+#include "../SteeringBehaviors/SteeringAgent.h"
+#include "../SteeringBehaviors/SteeringHelpers.h"
 
 
 //*******************
