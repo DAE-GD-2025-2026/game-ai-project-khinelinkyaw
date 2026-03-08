@@ -6,9 +6,22 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
 	
-	Steering.AngularVelocity = Face::CalculateAngularVelocity(DeltaT, Agent, Target);
+	FVector const FacingVector{ Agent.GetActorRotation().Vector() };
+	FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector() };
+	FVector const CrossProduct {FVector::CrossProduct(FacingVector, TargetDirection)};
+	Steering.AngularVelocity = CrossProduct.Z;
 
-	Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, Target.Position);
+	FRotator NextRotation { Agent.GetActorRotation() };
+	NextRotation.Yaw += Steering.AngularVelocity * Agent.GetMaxAngularSpeed() * DeltaT;
+	
+	Steering.LinearVelocity = static_cast<FVector2D>(NextRotation.Vector()) * Agent.GetMaxLinearSpeed() * DeltaT;
+	double const TargetDistance = (Target.Position - Agent.GetPosition()).Length();
+	
+	if (TargetDistance < Agent.GetMaxLinearSpeed())
+	{
+		Steering.LinearVelocity = Steering.LinearVelocity.GetClampedToSize(0, TargetDistance/Agent.GetMaxLinearSpeed());
+	}
+	
 	return Steering;
 }
 
@@ -82,7 +95,6 @@ float Face::CalculateAngularVelocity(float DeltaT, ASteeringAgent const& Agent, 
 	FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector() };
 	
 	FVector CrossProduct {FVector::CrossProduct(FacingVector, TargetDirection)};
-	CrossProduct.Normalize();
 	
 	return CrossProduct.Z;
 }
