@@ -116,9 +116,7 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 #pragma endregion
 	// Combined Steering Update
 	UpdateDrunkAgents();
- // TODO: implement handling mouse click input for seek
 	UpdateEvadingAgents();
- // TODO: implement Make sure to also evade the wanderer
 }
 
 bool ALevel_CombinedSteering::AddAgent(EAgentType AgentType)

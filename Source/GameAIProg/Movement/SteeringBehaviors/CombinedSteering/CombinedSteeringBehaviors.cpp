@@ -3,16 +3,25 @@
 #include <algorithm>
 #include "../SteeringAgent.h"
 
+BlendedSteering::BlendedSteering()
+	:WeightedBehaviors{}
+{
+}
+
 BlendedSteering::BlendedSteering(const std::vector<WeightedBehavior>& WeightedBehaviors)
 	:WeightedBehaviors(WeightedBehaviors)
 {};
+
+void BlendedSteering::AddBehaviour(ISteeringBehavior* const pBehavior, float Weight)
+{
+	WeightedBehaviors.push_back(WeightedBehavior(pBehavior, Weight));
+}
 
 //****************
 //BLENDED STEERING
 SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput BlendedSteering = {};
-	// TODO: Calculate the weighted average steeringbehavior
 	
 	for (WeightedBehavior const& WeightedBehavior : WeightedBehaviors)
 	{

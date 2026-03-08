@@ -18,6 +18,28 @@ private:
 
 //SEPARATION - FLOCKING
 //*********************
+class Separation final : public Seek
+{
+public:
+	Separation(Flock* const pFlock) :pFlock(pFlock) {};
+
+	//Cohesion Behavior
+	SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& pAgent) override;
+
+private:
+	Flock* pFlock = nullptr;
+};
 
 //VELOCITY MATCH - FLOCKING
 //************************
+class VelMatch final : public ISteeringBehavior
+{
+public:
+	VelMatch(Flock* const pFlock) :pFlock(pFlock) {};
+
+	//Cohesion Behavior
+	SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& pAgent) override;
+
+private:
+	Flock* pFlock = nullptr;
+};
