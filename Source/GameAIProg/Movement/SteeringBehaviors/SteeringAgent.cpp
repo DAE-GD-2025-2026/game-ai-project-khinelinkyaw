@@ -28,20 +28,23 @@ void ASteeringAgent::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
     
-    FVector ActorLocationOnPlane { GetActorLocation() };
-    ActorLocationOnPlane.Z = 0.f;
+    if (bIsDebugRenderingEnabled)
+    {
+        FVector ActorLocationOnPlane { GetActorLocation() };
+        ActorLocationOnPlane.Z = 0.f;
     
-    // Facing Direction
-    DrawDebugLine(
-        GetWorld(),
-        ActorLocationOnPlane,
-        ActorLocationOnPlane + GetActorRotation().Vector() * 150.f,
-        FColor::Red,
-        false,
-        0.0f,
-        0,
-        3.0f
-    );
+        // Facing Direction
+        DrawDebugLine(
+            GetWorld(),
+            ActorLocationOnPlane,
+            ActorLocationOnPlane + GetActorRotation().Vector() * 150.f,
+            FColor::Red,
+            false,
+            0.0f,
+            0,
+            3.0f
+        );
+    }
     
     if (SteeringBehavior)
     {
@@ -57,37 +60,44 @@ void ASteeringAgent::Tick(float DeltaTime)
                 AaiController->SetControlRotation(NewRotation);
                 FaceRotation(NewRotation);
                 
-                // Destination Vector
-                DrawDebugCircle(
-                    GetWorld(),
-                    ActorLocationOnPlane + FVector{Output.LinearVelocity, 0.f},
-                    10.f,
-                    12,
-                    FColor::Yellow,
-                    false,
-                    0.f,
-                    0,
-                    3.f,
-                    FVector::YAxisVector,
-                    FVector::XAxisVector,
-                    false
-                );
+                if (bIsDebugRenderingEnabled)
+                {
+                    FVector ActorLocationOnPlane { GetActorLocation() };
+                    ActorLocationOnPlane.Z = 0.f;
+                    
+                    // Destination Vector
+                    DrawDebugCircle(
+                        GetWorld(),
+                        ActorLocationOnPlane + FVector{Output.LinearVelocity, 0.f},
+                        10.f,
+                        12,
+                        FColor::Yellow,
+                        false,
+                        0.f,
+                        0,
+                        3.f,
+                        FVector::YAxisVector,
+                        FVector::XAxisVector,
+                        false
+                    );
                 
-                // Footsteps
-                DrawDebugCircle(
-                    GetWorld(),
-                    ActorLocationOnPlane,
-                    5.f,
-                    6,
-                    FColor::Red,
-                    false,
-                    4.0f,
-                    0,
-                    3.f,
-                    FVector::YAxisVector,
-                    FVector::XAxisVector,
-                    false
-                );
+                    // Footsteps
+                    DrawDebugCircle(
+                        GetWorld(),
+                        ActorLocationOnPlane,
+                        5.f,
+                        6,
+                        FColor::Red,
+                        false,
+                        4.0f,
+                        0,
+                        3.f,
+                        FVector::YAxisVector,
+                        FVector::XAxisVector,
+                        false
+                    );
+                }
+
             }
         }
     }

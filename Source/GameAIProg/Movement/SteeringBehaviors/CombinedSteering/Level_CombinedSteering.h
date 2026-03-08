@@ -34,9 +34,11 @@ private:
 	bool UseMouseTarget = false;
 	bool CanDebugRender = false;
 	
-	BlendedSteering* PBlendedSteering = nullptr;
-	PrioritySteering* PPrioritySteering = nullptr;
-	
+	BlendedSteering* PBlendedSteering = new BlendedSteering({
+		BlendedSteering::WeightedBehavior(new Seek(), 0.5f),
+		BlendedSteering::WeightedBehavior(new Wander(), 0.5f),
+	});
+
 	enum class EAgentType
 	{
 		DrunkAgent,
@@ -46,6 +48,7 @@ private:
 	struct ImGui_Agent final
 	{
 		ASteeringAgent* Agent { nullptr };
+		ISteeringBehavior* Behavior { nullptr };
 		EAgentType AgentType { EAgentType::DrunkAgent };
 	};
 	
@@ -55,5 +58,8 @@ private:
 	
 	bool AddAgent(EAgentType AgentType);
 	void UpdateAgentVectors();
-	void UpdateDrunkAgents();
+	void UpdateDrunkAgents() const;
+	void UpdateEvadingAgents();
+	
+	void ToggleDebugRenderingForAgents(bool flag) const;
 };

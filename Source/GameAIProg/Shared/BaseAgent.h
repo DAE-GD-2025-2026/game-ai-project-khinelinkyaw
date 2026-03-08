@@ -24,7 +24,7 @@ public:
 	ABaseAgent();
 
 protected:
-	bool bIsDebugRenderingEnabled{true};
+	bool bIsDebugRenderingEnabled{false};
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -1,5 +1,5 @@
 ﻿#include "Level_CombinedSteering.h"
-
+#include <algorithm>
 #include "imgui.h"
 
 
@@ -13,12 +13,6 @@ ALevel_CombinedSteering::ALevel_CombinedSteering()
 // Called when the game starts or when spawned
 void ALevel_CombinedSteering::BeginPlay()
 {
-	std::vector WeightedBehaviors {
-		BlendedSteering::WeightedBehavior(new Seek(), 0.5f),
-		BlendedSteering::WeightedBehavior(new Wander(), 0.5f),
-	};
-	
-	PBlendedSteering = new BlendedSteering(WeightedBehaviors);
 	
 	Super::BeginPlay();
 
@@ -74,7 +68,7 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	
 		if (ImGui::Checkbox("Debug Rendering", &CanDebugRender))
 		{
-   // TODO: Handle the debug rendering of your agents here :)
+			ToggleDebugRenderingForAgents(CanDebugRender);
 		}
 		ImGui::Checkbox("Trim World", &TrimWorld->bShouldTrimWorld);
 		if (TrimWorld->bShouldTrimWorld)
@@ -123,6 +117,7 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	// Combined Steering Update
 	UpdateDrunkAgents();
  // TODO: implement handling mouse click input for seek
+	UpdateEvadingAgents();
  // TODO: implement Make sure to also evade the wanderer
 }
 
@@ -137,10 +132,12 @@ bool ALevel_CombinedSteering::AddAgent(EAgentType AgentType)
 		switch (AgentType)
 		{
 		case EAgentType::DrunkAgent:
+			ImGuiAgent.Behavior = PBlendedSteering;
 			ImGuiAgent.Agent->SetSteeringBehavior(PBlendedSteering);
 			break;
 		case EAgentType::EvadingAgent:
-			ImGuiAgent.Agent->SetSteeringBehavior(PPrioritySteering);
+			ImGuiAgent.Behavior = new Evade;
+			ImGuiAgent.Agent->SetSteeringBehavior(new PrioritySteering({ ImGuiAgent.Behavior, new Wander}));
 			break;
 		}
 		
@@ -171,7 +168,39 @@ void ALevel_CombinedSteering::UpdateAgentVectors()
 	}
 }
 
-void ALevel_CombinedSteering::UpdateDrunkAgents()
+void ALevel_CombinedSteering::UpdateDrunkAgents() const
 {
 	PBlendedSteering->GetWeightedBehaviorsRef()[0].pBehavior->SetTarget(MouseTarget);
+}
+
+void ALevel_CombinedSteering::UpdateEvadingAgents()
+{
+	if (DrunkSteeringAgents.size() == 0)
+	{
+		return;
+	}
+	
+	for (auto const* EvadingAgent : EvadingSteeringAgents)
+	{
+		auto ClosetAgentIter = std::ranges::min_element(DrunkSteeringAgents,[EvadingAgent](const ImGui_Agent* A, const ImGui_Agent* B)
+		{
+			auto ADistance { A->Agent->GetPosition() - EvadingAgent->Agent->GetPosition() };
+			auto  BDistance { B->Agent->GetPosition() - EvadingAgent->Agent->GetPosition() };
+			
+			return ADistance.Length() < BDistance.Length();
+		});
+		
+		FTargetData Target{};
+		Target.Position = (*ClosetAgentIter)->Agent->GetPosition();
+		
+		EvadingAgent->Behavior->SetTarget(Target);
+	}
+}
+
+void ALevel_CombinedSteering::ToggleDebugRenderingForAgents(bool flag) const
+{
+	for (const auto& Agent : SteeringAgents)
+	{
+		Agent.Agent->SetDebugRenderingEnabled(flag);
+	}
 }

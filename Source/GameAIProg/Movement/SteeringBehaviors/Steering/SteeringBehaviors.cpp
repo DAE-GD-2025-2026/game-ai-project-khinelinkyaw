@@ -102,6 +102,30 @@ SteeringOutput Evade::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	SteeringOutput Steering{};
 	FVector2D const PredictedPosition { Target.Position + (Target.LinearVelocity) };
 	
+	auto PredictedDistance {(PredictedPosition - Agent.GetPosition()).Length()};
+	if (PredictedDistance > EvadeRadius)
+	{
+		Steering.IsValid = false;
+		return Steering;
+	}
+	
+	FVector ActorLocationOnPlane { Agent.GetActorLocation() };
+	ActorLocationOnPlane.Z = 0.f;
+	
+	if (Agent.GetDebugRenderingEnabled())
+	{
+		DrawDebugLine(
+			Agent.GetWorld(),
+			ActorLocationOnPlane,
+			ActorLocationOnPlane + FVector(PredictedPosition, 0.f),
+			FColor::Cyan,
+			false,
+			0.0f,
+			0,
+			3.0f
+		);
+	}
+	
 	Steering.LinearVelocity = - Seek::CalculateLinearVelocity(DeltaT, Agent, PredictedPosition);
 	
 	return Steering;
@@ -113,22 +137,24 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	
 	FVector2D const CircleCenter { Agent.GetPosition() + Agent.GetForwardVector() * CircleOffset };
 	
-	// Destination Vector
-	DrawDebugCircle(
-		Agent.GetWorld(),
-		FVector{CircleCenter, 0.f},
-		CircleRadius,
-		12,
-		FColor::Orange,
-		false,
-		0.f,
-		0,
-		3.f,
-		FVector::YAxisVector,
-		FVector::XAxisVector,
-		false
-	);
-                
+	if (Agent.GetDebugRenderingEnabled())
+	{
+		// Destination Vector
+		DrawDebugCircle(
+			Agent.GetWorld(),
+			FVector{CircleCenter, 0.f},
+			CircleRadius,
+			12,
+			FColor::Orange,
+			false,
+			0.f,
+			0,
+			3.f,
+			FVector::YAxisVector,
+			FVector::XAxisVector,
+			false
+		);
+	}
 	
 	auto const AngleChange = FMath::RandRange(WanderRange.Key,WanderRange.Value)/ 10.f;
 	CurrentAngle += AngleChange;
@@ -138,20 +164,23 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	WanderPosition.X = (FMath::Cos(CurrentAngle) * CircleRadius) + CircleCenter.X;
 	WanderPosition.Y = (FMath::Sin(CurrentAngle) * CircleRadius) + CircleCenter.Y;
 	
-	DrawDebugCircle(
-		Agent.GetWorld(),
-		FVector{WanderPosition, 0.f},
-		5.f,
-		12,
-		FColor::Green,
-		false,
-		0.f,
-		0,
-		3.f,
-		FVector::YAxisVector,
-		FVector::XAxisVector,
-		false
-	);
+	if (Agent.GetDebugRenderingEnabled())
+	{
+		DrawDebugCircle(
+			Agent.GetWorld(),
+			FVector{WanderPosition, 0.f},
+			5.f,
+			12,
+			FColor::Green,
+			false,
+			0.f,
+			0,
+			3.f,
+			FVector::YAxisVector,
+			FVector::XAxisVector,
+			false
+		);
+	}
 	
 	Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, WanderPosition);
 	

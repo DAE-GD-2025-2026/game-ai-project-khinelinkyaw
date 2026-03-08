@@ -77,7 +77,10 @@ class Pursuit final : public ISteeringBehavior
 
 class Evade final : public ISteeringBehavior
 {
-	public:
+private:
+	float EvadeRadius{200.f};
+	
+public:
 	Evade() = default;
 	virtual ~Evade() override = default;
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent& Agent) override;
