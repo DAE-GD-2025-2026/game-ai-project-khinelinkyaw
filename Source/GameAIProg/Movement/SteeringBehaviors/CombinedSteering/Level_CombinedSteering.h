@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "CoreMinimal.h"
 #include "CombinedSteeringBehaviors.h"
 #include "GameAIProg/Shared/Level_Base.h"
@@ -31,6 +33,27 @@ private:
 	//Datamembers
 	bool UseMouseTarget = false;
 	bool CanDebugRender = false;
-
 	
+	BlendedSteering* PBlendedSteering = nullptr;
+	PrioritySteering* PPrioritySteering = nullptr;
+	
+	enum class EAgentType
+	{
+		DrunkAgent,
+		EvadingAgent,
+	};
+	
+	struct ImGui_Agent final
+	{
+		ASteeringAgent* Agent { nullptr };
+		EAgentType AgentType { EAgentType::DrunkAgent };
+	};
+	
+	std::vector<ImGui_Agent> SteeringAgents{};
+	std::vector<ImGui_Agent*> DrunkSteeringAgents{};
+	std::vector<ImGui_Agent*> EvadingSteeringAgents{};
+	
+	bool AddAgent(EAgentType AgentType);
+	void UpdateAgentVectors();
+	void UpdateDrunkAgents();
 };
