@@ -18,14 +18,16 @@ SteeringOutput Cohesion::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 //SEPARATION (FLOCKING)
 SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 {
-	Target.Clear();
+	SteeringOutput Steering{};
+	Steering.LinearVelocity = FVector2D::ZeroVector;
+	
 	for (int i = 0; i < pFlock->GetNrOfNeighbors(); ++i)
 	{	
 		FVector2D NeighborRelativePos { pFlock->GetNeighbors()[i]->GetPosition() - pAgent.GetPosition() };
-		Target.Position += NeighborRelativePos.GetSafeNormal() * 1.0f/NeighborRelativePos.Length();
+		Steering.LinearVelocity += -NeighborRelativePos/NeighborRelativePos.Length();
 	}
 	
-	return Seek::CalculateSteering(deltaT, pAgent);
+	return Steering;
 }
 
 //*************************
