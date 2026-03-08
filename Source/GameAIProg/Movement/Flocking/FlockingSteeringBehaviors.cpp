@@ -34,7 +34,7 @@ SteeringOutput VelMatch::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 {
 	SteeringOutput Steering{};
 	
-	Steering.LinearVelocity = pFlock->GetAverageNeighborVelocity() * deltaT * pAgent.GetMaxLinearSpeed();
+	Steering.LinearVelocity = pFlock->GetAverageNeighborVelocity() * deltaT;
 	
 	return Steering;
 }

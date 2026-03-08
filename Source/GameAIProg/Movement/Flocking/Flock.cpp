@@ -22,11 +22,11 @@ Flock::Flock(
 	pEvadeBehavior = std::make_unique<Evade>();
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>();
-	pBlendedSteering->AddBehaviour(pCohesionBehavior.get(), 0.5f);
-	pBlendedSteering->AddBehaviour(pSeparationBehavior.get(), 0.5f);
+	pBlendedSteering->AddBehaviour(pCohesionBehavior.get(), 0.1f);
+	//pBlendedSteering->AddBehaviour(pSeparationBehavior.get(), 0.5f);
 	pBlendedSteering->AddBehaviour(pVelMatchBehavior.get(), 0.5f);
 	//pBlendedSteering->AddBehaviour(pSeekBehavior.get(), 1.f);
-	pBlendedSteering->AddBehaviour(pWanderBehavior.get(), 0.5f);
+	pBlendedSteering->AddBehaviour(pWanderBehavior.get(), 1.0f);
 	//pBlendedSteering->AddBehaviour(pEvadeBehavior.get(), 1.f);
 	
 	Agents.SetNum(FlockSize);
@@ -126,9 +126,6 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 
 		ImGui::Text("Behavior Weights");
 		ImGui::Spacing();
-
-		ImGui::Text("Behavior Weights");
-		ImGui::Spacing();
 		
 		ImGuiHelpers::ImGuiSliderFloatWithSetter("Cohesion",
 			pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight, 0.f, 1.f,
@@ -138,14 +135,14 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight, 0.f, 1.f,
 		[this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight = InVal; }, "%.2f");
 		
-		ImGuiHelpers::ImGuiSliderFloatWithSetter("Velo Match",
-		pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight, 0.f, 1.f,
-		[this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight = InVal; }, "%.2f");
-		
-		ImGuiHelpers::ImGuiSliderFloatWithSetter("Wander",
-		pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight, 0.f, 1.f,
-		[this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight = InVal; }, "%.2f");
-	
+		// ImGuiHelpers::ImGuiSliderFloatWithSetter("Velo Match",
+		// pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight, 0.f, 1.f,
+		// [this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight = InVal; }, "%.2f");
+		//
+		// ImGuiHelpers::ImGuiSliderFloatWithSetter("Wander",
+		// pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight, 0.f, 1.f,
+		// [this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight = InVal; }, "%.2f");
+		//
 		ImGui::Spacing();
 		
   // TODO: implement ImGUI sliders for steering behavior weights here
@@ -193,6 +190,11 @@ FVector2D Flock::GetAverageNeighborPos() const
 {
 	FVector2D avgPosition = FVector2D::ZeroVector;
 	
+	if (NrOfNeighbors == 0)
+	{
+		return avgPosition;
+	}
+	
 	for (int i = 0; i < NrOfNeighbors; ++i)
 	{
 		avgPosition += Neighbors[i]->GetPosition();
@@ -206,6 +208,11 @@ FVector2D Flock::GetAverageNeighborPos() const
 FVector2D Flock::GetAverageNeighborVelocity() const
 {
 	FVector2D avgVelocity = FVector2D::ZeroVector;
+	
+	if (NrOfNeighbors == 0)
+	{
+		return avgVelocity;
+	}
 	
 	for (int i = 0; i < NrOfNeighbors; ++i)
 	{
