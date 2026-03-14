@@ -39,6 +39,7 @@ public:
 	
 	// BaseAgent Interface
 	FVector2D GetPosition() const { return FVector2D{GetActorLocation().X, GetActorLocation().Y}; }
+	FVector2D GetForwardVector() const { return FVector2D{GetActorForwardVector().X, GetActorForwardVector().Y}; }
 	void SetPosition(FVector2D const & NewPosition) { SetActorLocation(FVector{NewPosition, GetActorLocation().Z}); }
 	float GetRotation() const { return GetActorRotation().Yaw; }
 	
