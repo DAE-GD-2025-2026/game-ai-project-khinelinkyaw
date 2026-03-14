@@ -138,9 +138,9 @@ namespace GameAI
 			
 			if (Connections.size() == 0)
 			{
-				Path.push_back(m_pGraph->GetNode(NodeStack.top()).get());
-				NodeStack.pop();
+				Path.push_back(m_pGraph->GetNode(currentNodeId).get());
 				currentNodeId = NodeStack.top();
+				NodeStack.pop();
 				continue;
 			}
 			
@@ -149,6 +149,8 @@ namespace GameAI
 			NodeStack.push(currentNodeId);
 		}
 
+		Path.push_back(m_pGraph->GetNode(currentNodeId).get());
+		
 		std::ranges::reverse(Path);
 		return Path;
 	}
