@@ -61,19 +61,11 @@ namespace GameAI
 		// TODO An Euler trail can be made, but only starting and ending in these 2 nodes
 		if (OddDegreeNodes.size() == 2)
 		{
-			if (Nodes.size() == 2)
-			{
-				return Eulerianity::eulerian;
-			}
-			
 			return Eulerianity::semiEulerian;
 		}
 		
 		// TODO A connected graph with no odd nodes is Eulerian
-		if (OddDegreeNodes.size() == 0)
-		{
-			return Eulerianity::eulerian;
-		}
+		return Eulerianity::eulerian;
 	}
 
 	inline std::vector<Node*> EulerianPath::FindPath(Eulerianity& eulerianity) const
@@ -85,10 +77,8 @@ namespace GameAI
 		int currentNodeId{ Graphs::InvalidNodeId };
 		
 		// TODO Check if there can be an Euler path
-		auto PathEulerCheck { IsEulerian() };
-		
 		// TODO If this graph is not eulerian, return the empty path
-		if (PathEulerCheck == Eulerianity::notEulerian)
+		if (eulerianity == Eulerianity::notEulerian)
 		{
 			return Path;
 		}
@@ -96,9 +86,9 @@ namespace GameAI
 		// TODO Start algorithm loop
 		std::stack<int> NodeStack;
 		
-		if (PathEulerCheck == Eulerianity::semiEulerian)
+		if (eulerianity == Eulerianity::semiEulerian)
 		{
-			for (Node* const Node : Nodes)
+			for (Node const* Node : Nodes)
 			{
 				auto const Connections { graphCopy.FindConnectionsFrom(Node->GetId())};
 				
@@ -132,7 +122,7 @@ namespace GameAI
 			currentNodeId = Nodes.back()->GetId();
 		}
 		
-		while (NodeStack.size() > 0 and graphCopy.FindConnectionsFrom(currentNodeId).size() > 0)
+		while (NodeStack.size() > 0 or graphCopy.FindConnectionsFrom(currentNodeId).size() > 0)
 		{
 			auto Connections { graphCopy.FindConnectionsFrom(currentNodeId) };
 			

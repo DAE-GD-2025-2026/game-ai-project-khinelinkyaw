@@ -29,7 +29,8 @@ SteeringOutput PathFollow::CalculateSteering(float DeltaTime, ASteeringAgent& Ag
 		float agentRadius = Agent.GetCapsuleRadius();
 		FVector2D ToPathPoint{pathVec[currentPathIndex] - Agent.GetPosition()};
 		
-		if (ToPathPoint.SizeSquared() < agentRadius * agentRadius)
+		auto SquaredPath = ToPathPoint.SizeSquared(); 
+		if (SquaredPath < agentRadius * agentRadius)
 		{
 			//Reached point of the path
 			GotoNextPathPoint();
@@ -46,20 +47,31 @@ SteeringOutput PathFollow::CalculateSteering(float DeltaTime, ASteeringAgent& Ag
 void PathFollow::GotoNextPathPoint()
 {
 	++currentPathIndex;
-	if (currentPathIndex >= static_cast<int>(pathVec.size())) return;
+	if (currentPathIndex >= static_cast<int>(pathVec.size()))
+	{
+		currentPathIndex = 0;
+	}
 	
-	if (currentPathIndex == pathVec.size() -1)
-	{
-		FTargetData PathTarget{pathVec[currentPathIndex]};
-		//We have reached the last node
-		pArrive->SetTarget(PathTarget);
-		pCurrentSteering = pArrive;
-	}
-	else
-	{
-		FTargetData PathTarget{pathVec[currentPathIndex]};
-		//Move to the next node
-		pSeek->SetTarget(PathTarget);
-		pCurrentSteering = pSeek;
-	}
+	
+	FTargetData PathTarget{pathVec[currentPathIndex]};
+	//Move to the next node
+	pSeek->SetTarget(PathTarget);
+	pCurrentSteering = pSeek;
+	
+	//if (currentPathIndex >= static_cast<int>(pathVec.size())) return;
+	
+	// if (currentPathIndex == pathVec.size() -1)
+	// {
+	// 	FTargetData PathTarget{pathVec[currentPathIndex]};
+	// 	//We have reached the last node
+	// 	pArrive->SetTarget(PathTarget);
+	// 	pCurrentSteering = pSeek;
+	// }
+	// else
+	// {
+	// 	FTargetData PathTarget{pathVec[currentPathIndex]};
+	// 	//Move to the next node
+	// 	pSeek->SetTarget(PathTarget);
+	// 	pCurrentSteering = pSeek;
+	// }
 }

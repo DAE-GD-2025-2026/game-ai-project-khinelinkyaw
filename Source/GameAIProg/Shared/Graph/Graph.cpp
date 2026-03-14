@@ -261,6 +261,8 @@ namespace GameAI
             // Also add the inverse connection
             Connections.push_back(std::make_unique<Connection>(InverseNew));
         }
+        
+        bIsGraphChanged = true;
     }
 
     void Graph::AddConnection(int FromNodeId, int ToNodeId)
@@ -283,6 +285,7 @@ namespace GameAI
                 [&](std::unique_ptr<Connection> const & Element){return *Element.get() == InverseConnection;});
         }
 			
+        bIsGraphChanged = true;
         return AmountRemoved > 0;
     }
 
