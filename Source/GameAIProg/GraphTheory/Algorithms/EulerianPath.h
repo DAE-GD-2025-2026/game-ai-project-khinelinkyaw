@@ -134,24 +134,19 @@ namespace GameAI
 		
 		while (NodeStack.size() > 0 and graphCopy.FindConnectionsFrom(currentNodeId).size() > 0)
 		{
-			NodeStack.push(currentNodeId);
-			
 			auto Connections { graphCopy.FindConnectionsFrom(currentNodeId) };
 			
 			if (Connections.size() == 0)
 			{
-				while (NodeStack.size() > 0)
-				{
-					Path.push_back(m_pGraph->GetNode(NodeStack.top()).get());
-					NodeStack.pop();
-				}
-				currentNodeId = Nodes.back()->GetId();
-				
+				Path.push_back(m_pGraph->GetNode(NodeStack.top()).get());
+				NodeStack.pop();
+				currentNodeId = NodeStack.top();
 				continue;
 			}
 			
 			currentNodeId = Connections.front()->GetToId();
 			graphCopy.RemoveConnection(Connections.front());
+			NodeStack.push(currentNodeId);
 		}
 
 		std::ranges::reverse(Path);
