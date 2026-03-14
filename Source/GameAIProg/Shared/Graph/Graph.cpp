@@ -164,6 +164,7 @@ namespace GameAI
 
         NewNode->SetId(static_cast<int>(Nodes.size()));
         Nodes.push_back(std::move(NewNode));
+        bIsGraphChanged = true;
         return Nodes.back()->GetId();
     }
 
@@ -186,6 +187,7 @@ namespace GameAI
 
         // Mark node as invalid (keep it in the vector to preserve indices)
         Nodes[NodeToRemoveId]->SetId(Graphs::InvalidNodeId);
+        bIsGraphChanged = true;
         return true;
     }
 
@@ -304,6 +306,16 @@ namespace GameAI
     Graph Graph::Clone() const
     {
         return Graph{*this};
+    }
+
+    bool Graph::HasGraphChanged() const
+    {
+        return bIsGraphChanged;
+    }
+
+    void Graph::DisableGraphChange()
+    {
+        bIsGraphChanged = false;
     }
 
     void Graph::SetConnectionCostsToDistances()

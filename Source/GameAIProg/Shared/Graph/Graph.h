@@ -94,6 +94,9 @@ namespace GameAI
         bool GetIsDirectional() const;
         Graph Clone() const;
         
+        bool HasGraphChanged() const;
+        void DisableGraphChange();
+        
         // Helper
         void SetConnectionCostsToDistances();
 
@@ -101,6 +104,7 @@ namespace GameAI
         std::optional<int> GetFirstInvalidNodeIdx() const;
         
         bool const bIsDirectional;
+        bool bIsGraphChanged{true};
         std::vector<std::unique_ptr<Node>> Nodes;
         std::vector<std::unique_ptr<Connection>> Connections;
     };
