@@ -68,9 +68,37 @@ namespace GameAI
 	inline void EulerianPath::VisitAllNodesDFS(const std::vector<Node*>& Nodes, std::vector<bool>& visited, int startIndex ) const
 	{
 		// TODO Mark the visited node
+		if (visited[startIndex])
+		{
+			return;
+		}
+		
+		Node* StartingNode { Nodes[startIndex] };
+		visited[startIndex] = true;
 
 		// TODO Ask the graph for the connections from that node
+		
+		auto Connections { m_pGraph->FindConnectionsFrom(Nodes[startIndex]->GetId()) };
+		if (Connections.size() == 0)
+		{
+			return;
+		}
+		
 		// TODO recursively visit any valid connected nodes that were not visited before
+		for (auto Connection : Connections)
+		{
+			for (int i = 0; i < Nodes.size(); ++i)
+			{
+				if (Nodes[i]->GetId() == Connection->GetToId())
+				{
+					if (visited[i])
+					{
+						continue;
+					}
+					VisitAllNodesDFS(Nodes, visited, i);
+				}
+			}
+		}
 		// TODO Tip: use an index-based for-loop to find the correct index
 	}
 
@@ -81,9 +109,45 @@ namespace GameAI
 			return false;
 
 		// TODO choose a starting node
+
+		std::vector<Node*> VisitedNodes{};
+		std::vector<Node*> StackNodes{ Nodes.front() };
 		
 		// TODO start a depth-first-search traversal from the node that has at least one connection
+		while (StackNodes.empty() == false)
+		{
+			Node* StartingNode { StackNodes.back() };
+			StackNodes.pop_back();
+			
+			auto VisitedItr { std::ranges::find(VisitedNodes, StartingNode) };
+			if (VisitedItr != VisitedNodes.end())
+			{
+				VisitedNodes.push_back(StartingNode);
+			}
+			
+			auto const Connections {m_pGraph->FindConnectionsFrom(StartingNode->GetId())};
+			if (Connections.size() == 0)
+			{
+				return false;
+			}
+			
+			for (auto Connection : Connections)
+			{
+				auto NextNodeItr { std::ranges::find_if(Nodes, [Connection] (auto const Node) { return Node->GetId() == Connection->GetToId(); } ) };
+				if (NextNodeItr != Nodes.end())
+				{
+					StackNodes.push_back(*NextNodeItr);
+				}
+			}
+		}
+		
 		
 		// TODO if a node was never visited, this graph is not connected
+		if (VisitedNodes.size() != Nodes.size())
+		{
+			return false;
+		}
+		
+		return true;
 	}
 }
