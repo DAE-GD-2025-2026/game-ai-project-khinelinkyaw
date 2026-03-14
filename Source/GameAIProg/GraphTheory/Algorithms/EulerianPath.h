@@ -85,12 +85,75 @@ namespace GameAI
 		int currentNodeId{ Graphs::InvalidNodeId };
 		
 		// TODO Check if there can be an Euler path
+		auto PathEulerCheck { IsEulerian() };
+		
 		// TODO If this graph is not eulerian, return the empty path
+		if (PathEulerCheck == Eulerianity::notEulerian)
+		{
+			return Path;
+		}
 		
 		// TODO Start algorithm loop
-		std::stack<int> nodeStack;
+		std::stack<int> NodeStack;
+		
+		if (PathEulerCheck == Eulerianity::semiEulerian)
+		{
+			for (Node* const Node : Nodes)
+			{
+				auto const Connections { graphCopy.FindConnectionsFrom(Node->GetId())};
+				
+				if (Connections.size() % 2 != 0)
+				{
+					currentNodeId = Node->GetId();
+					break;
+				}
+			}
+			
+			// auto OddNodeIter { std::ranges::find_if(Nodes, [graphCopy](Node const* CurNode)
+			// {
+			// 	auto Connections { graphCopy.FindConnectionsFrom(CurNode->GetId())};
+			// 	
+			// 	if (Connections.size() % 2 != 0)
+			// 	{
+			// 		return true;
+			// 	}
+			// 	return false;
+			// })};
+			//
+			// if (OddNodeIter == Nodes.end())
+			// {
+			// 	return Path;
+			// }
+			//
+			// currentNodeId = (*OddNodeIter)->GetId();
+		}
+		else
+		{
+			currentNodeId = Nodes.back()->GetId();
+		}
+		
+		while (NodeStack.size() > 0 and graphCopy.FindConnectionsFrom(currentNodeId).size() > 0)
+		{
+			NodeStack.push(currentNodeId);
+			
+			auto Connections { graphCopy.FindConnectionsFrom(currentNodeId) };
+			
+			if (Connections.size() == 0)
+			{
+				for (Node const*  Node : NodeStack)
+				{
+					Path.push_back(m_pGraph->GetNode(Node->GetId()).get());
+				}
+				currentNodeId = Nodes.back()->GetId();
+				
+				continue;
+			}
+			
+			currentNodeId = Connections.front()->GetToId();
+			graphCopy.RemoveConnection(Connections.front());
+		}
 
-		std::reverse(Path.begin(), Path.end());
+		std::ranges::reverse(Path);
 		return Path;
 	}
 
