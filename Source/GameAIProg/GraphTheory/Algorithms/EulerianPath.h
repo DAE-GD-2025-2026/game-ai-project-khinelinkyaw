@@ -140,9 +140,10 @@ namespace GameAI
 			
 			if (Connections.size() == 0)
 			{
-				for (Node const*  Node : NodeStack)
+				while (NodeStack.size() > 0)
 				{
-					Path.push_back(m_pGraph->GetNode(Node->GetId()).get());
+					Path.push_back(m_pGraph->GetNode(NodeStack.top()).get());
+					NodeStack.pop();
 				}
 				currentNodeId = Nodes.back()->GetId();
 				
