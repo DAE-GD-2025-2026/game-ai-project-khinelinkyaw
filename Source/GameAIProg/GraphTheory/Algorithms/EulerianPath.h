@@ -73,7 +73,6 @@ namespace GameAI
 			return;
 		}
 		
-		Node* StartingNode { Nodes[startIndex] };
 		visited[startIndex] = true;
 
 		// TODO Ask the graph for the connections from that node
@@ -91,10 +90,6 @@ namespace GameAI
 			{
 				if (Nodes[i]->GetId() == Connection->GetToId())
 				{
-					if (visited[i])
-					{
-						continue;
-					}
 					VisitAllNodesDFS(Nodes, visited, i);
 				}
 			}
@@ -107,45 +102,21 @@ namespace GameAI
 		std::vector<Node*> Nodes = m_pGraph->GetActiveNodes();
 		if (Nodes.size() == 0)
 			return false;
-
+		
+		std::vector<bool> VisitedNodeFlags (Nodes.size(), false);
+		
 		// TODO choose a starting node
-
-		std::vector<Node*> VisitedNodes{};
-		std::vector<Node*> StackNodes{ Nodes.front() };
 		
 		// TODO start a depth-first-search traversal from the node that has at least one connection
-		while (StackNodes.empty() == false)
+		VisitAllNodesDFS(Nodes, VisitedNodeFlags , 0);
+		
+		// TODO if a node was never visited, this graph is not connected
+		for (bool VisitedFlag : VisitedNodeFlags )
 		{
-			Node* StartingNode { StackNodes.back() };
-			StackNodes.pop_back();
-			
-			auto VisitedItr { std::ranges::find(VisitedNodes, StartingNode) };
-			if (VisitedItr != VisitedNodes.end())
-			{
-				VisitedNodes.push_back(StartingNode);
-			}
-			
-			auto const Connections {m_pGraph->FindConnectionsFrom(StartingNode->GetId())};
-			if (Connections.size() == 0)
+			if (!VisitedFlag)
 			{
 				return false;
 			}
-			
-			for (auto Connection : Connections)
-			{
-				auto NextNodeItr { std::ranges::find_if(Nodes, [Connection] (auto const Node) { return Node->GetId() == Connection->GetToId(); } ) };
-				if (NextNodeItr != Nodes.end())
-				{
-					StackNodes.push_back(*NextNodeItr);
-				}
-			}
-		}
-		
-		
-		// TODO if a node was never visited, this graph is not connected
-		if (VisitedNodes.size() != Nodes.size())
-		{
-			return false;
 		}
 		
 		return true;
