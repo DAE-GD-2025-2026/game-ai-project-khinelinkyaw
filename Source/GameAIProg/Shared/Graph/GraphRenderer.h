@@ -36,7 +36,7 @@ namespace GameAI
 		void RenderGraph(Graph const & Graph) const;
 
 	private:
-		UWorld* World;
+		UWorld* World{};
 		GraphRenderOptions Options{};
 		
 		template <typename NodeType>
