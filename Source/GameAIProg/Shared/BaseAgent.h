@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "BaseAgent.generated.h"
@@ -24,7 +25,7 @@ public:
 	ABaseAgent();
 
 protected:
-	bool bIsDebugRenderingEnabled{false};
+	bool bIsDebugRenderingEnabled{true};
 	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,7 +39,7 @@ public:
 	
 	// BaseAgent Interface
 	FVector2D GetPosition() const { return FVector2D{GetActorLocation().X, GetActorLocation().Y}; }
-	FVector2D GetForwardVector() const { return FVector2D{GetActorForwardVector().X, GetActorForwardVector().Y}; }
+	void SetPosition(FVector2D const & NewPosition) { SetActorLocation(FVector{NewPosition, GetActorLocation().Z}); }
 	float GetRotation() const { return GetActorRotation().Yaw; }
 	
 	float GetMaxLinearSpeed() const { return GetCharacterMovement()->GetMaxSpeed(); }
@@ -59,4 +60,6 @@ public:
 
 	bool GetDebugRenderingEnabled() const { return bIsDebugRenderingEnabled; }
 	void SetDebugRenderingEnabled(bool IsEnabled) { this->bIsDebugRenderingEnabled = IsEnabled; }
+	
+	float GetCapsuleRadius() const { return GetCapsuleComponent()->GetScaledCapsuleRadius(); }
 };
