@@ -52,6 +52,10 @@ void PathFollow::GotoNextPathPoint()
 		currentPathIndex = 0;
 	}
 	
+	if (pathVec.empty())
+	{
+		return;
+	}
 	
 	FTargetData PathTarget{pathVec[currentPathIndex]};
 	//Move to the next node
