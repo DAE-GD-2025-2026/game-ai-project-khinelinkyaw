@@ -83,7 +83,9 @@ namespace GameAI
 
     Connection Connection::GetInverseCopy() const
     {
-        return Connection{ToId, FromId};
+        Connection Conn{ToId, FromId};
+        Conn.SetWeight(Weight);
+        return Conn;
     }
 
     bool Connection::operator==(const Connection& Other) const
@@ -95,11 +97,13 @@ namespace GameAI
 #pragma region Graph
     Graph::Graph(bool isDirectional)
         : bIsDirectional{isDirectional}
+        , bHasGraphChanged{true}
     {
     }
 
     Graph::Graph(Graph const & Other)
         : bIsDirectional{Other.bIsDirectional}
+        , bHasGraphChanged{Other.bHasGraphChanged}
     {
         Nodes.reserve(Other.Nodes.size());
         for (std::unique_ptr<Node> const & OtherNode : Other.Nodes)
@@ -332,6 +336,16 @@ namespace GameAI
     {
         return 0 < std::erase_if(Connections,
     [=](auto const & Connection){return Connection->GetToId() == ToId;});
+    }
+
+    bool Graph::HasGraphChanged() const
+    {
+        return bHasGraphChanged;
+    }
+
+    void Graph::ResetGraphChanged()
+    {
+        bHasGraphChanged = false;
     }
 
     bool Graph::GetIsDirectional() const

@@ -127,6 +127,9 @@ namespace GameAI
         
         bool RemoveConnectionsFrom(int FromId);
         bool RemoveConnectionsTo(int ToId);
+        
+        bool HasGraphChanged() const;
+        void ResetGraphChanged();
 
         bool GetIsDirectional() const;
         Graph Clone() const;
@@ -138,6 +141,7 @@ namespace GameAI
         std::optional<int> GetFirstInvalidNodeIdx() const;
         
         bool const bIsDirectional;
+        bool bHasGraphChanged;
         std::vector<std::unique_ptr<Node>> Nodes;
         std::vector<std::unique_ptr<Connection>> Connections;
     };
