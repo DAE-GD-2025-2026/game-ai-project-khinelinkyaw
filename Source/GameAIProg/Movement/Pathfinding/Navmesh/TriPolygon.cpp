@@ -15,6 +15,11 @@ bool TriPolygon::Edge::operator==(const Edge& Other) const
 	return true;
 }
 
+FVector TriPolygon::Edge::GetMidPoint(TriPolygon const& Poly) const
+{
+	return (GetP1(Poly) + GetP2(Poly)) * 0.5f; 
+}
+
 std::array<FVector, 3> TriPolygon::Triangle::GetVertices(TriPolygon const& Poly) const
 {
 	return { Poly.Vertices[VertexIndices[0]], Poly.Vertices[VertexIndices[1]], Poly.Vertices[VertexIndices[2]] };
@@ -254,6 +259,21 @@ TriPolygon::Triangle const* TriPolygon::GetTriangleAtPosition(FVector2D const& P
 		}
 	}
 	return nullptr;
+}
+
+std::vector<TriPolygon::Triangle> TriPolygon::GetTrianglesFromLineIndex(Edge const& Edge) const
+{
+	std::vector<Triangle> Tris{};
+	
+	for (auto const& Tri : Triangles)
+	{
+		if (Tri.HasEdge(Edge))
+		{
+			Tris.push_back(Tri);
+		}
+	}
+	
+	return Tris;
 }
 
 int TriPolygon::AddVertex(FVector const& Vertex)

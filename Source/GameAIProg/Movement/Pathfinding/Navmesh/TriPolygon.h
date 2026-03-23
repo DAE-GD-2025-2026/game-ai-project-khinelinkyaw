@@ -12,6 +12,7 @@ public:
 		
 		bool operator==(const Edge& Other) const;
 		
+		FVector GetMidPoint(TriPolygon const& Poly) const;
 		FVector GetP1(TriPolygon const& Poly) const { return Poly.Vertices[EdgeIndices[0]]; }
 		FVector GetP2(TriPolygon const& Poly) const { return Poly.Vertices[EdgeIndices[1]]; }
 	};
@@ -56,7 +57,8 @@ public:
 
 	Triangle const* GetClosestTriangleToPosition(FVector2D const& DesiredPosition, FVector2D& OutPosition) const;
 	Triangle const* GetTriangleAtPosition(FVector2D const& Position, bool OnLineAllowed) const;
-	
+
+	std::vector<Triangle> GetTrianglesFromLineIndex(Edge const& Edge) const;
 
 private:
 	int AddVertex(FVector const& Vertex);
