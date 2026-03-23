@@ -58,7 +58,7 @@ void ALevel_Navmesh::BeginPlay()
 		false, 
 		false, 
 		true, 
-		false
+		true
 	});
 }
 

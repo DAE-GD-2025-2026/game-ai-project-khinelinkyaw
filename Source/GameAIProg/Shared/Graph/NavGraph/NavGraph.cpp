@@ -96,6 +96,10 @@ void GameAI::NavGraph::CreateNavigationGraph()
 			
 		}
 		
+		// 2. Create connections now that every node is created	
+			// 2 valid nodes -> 1 connection
+			// 3 valid nodes -> 3 connections
+		
 		if (NodeIds.size() == 2)
 		{
 			AddConnection(NodeIds[0], NodeIds[1]);
@@ -108,9 +112,13 @@ void GameAI::NavGraph::CreateNavigationGraph()
 		}
 	}
 	
-	//2. Create connections now that every node is created	
-		//2 valid nodes -> 1 connection
-		//3 valid nodes -> 3 connections
+	// 3. Set the connections cost to the actual distance
+	
+	for (auto& Connection : Connections)
+	{
+		auto FromNode { GetNode(Connection->GetFromId())->GetPosition() };
+		auto ToNode { GetNode(Connection->GetToId())->GetPosition() };
 		
-	//3. Set the connections cost to the actual distance
+		Connection->SetWeight((ToNode - FromNode).Length());
+	}
 }
