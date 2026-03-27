@@ -81,6 +81,8 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 		CurrentNodeRecord = *NextNodeIter;
 	}
 	
+	Path.push_back(CurrentNodeRecord.pNode);
+	
 	return Path;
 }
 
