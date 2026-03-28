@@ -1,6 +1,7 @@
 #pragma once
 #include "Graph.h"
 #include "GraphConcepts.h"
+#include "GraphTheory/Algorithms/NavGraphPathfinding.h"
 
 namespace GameAI
 {
@@ -37,7 +38,7 @@ namespace GameAI
 		void SetHighlightedNodes(std::vector<std::pair<int, FColor>> const & NodesToHighlight);
 		
 		void RenderGraph(Graph const & Graph) const;
-
+		void RenderNavLines(std::vector<NavLine> const& NavLines) const;
 	private:
 		UWorld* World;
 		GraphRenderOptions Options{};

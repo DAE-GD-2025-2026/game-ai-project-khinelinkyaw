@@ -36,6 +36,7 @@ private:
 	ASteeringAgent* Agent{nullptr}; // ref
 	PathFollow PathFollow{};
 	std::vector<FVector2D> DebugDrawPath{};
+	std::vector<GameAI::NavLine> DebugNavLines{};
 	
 	bool bDrawNavPolyVertices{false};
 	bool bDrawNavPoly{true};

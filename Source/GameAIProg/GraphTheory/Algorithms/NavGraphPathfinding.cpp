@@ -67,17 +67,19 @@ std::vector<FVector2D> NavMeshPathfinding::FindPath(const FVector2D& startPos, c
 	
 	auto nodePath = AStarAlgo.FindPath(StartNode.get(), EndNode.get());
 	
-	finalPath.reserve(nodePath.size());
-	
-	for (auto iter = nodePath.rbegin(); iter != nodePath.rend(); ++iter)
-	{
-		finalPath.emplace_back((*iter)->GetPosition());
-	}
+	std::ranges::reverse(nodePath);
 	//Debug Visualisation
 
-	// Extra: Run optimiser on new graph (First check if everything works without SSFA!)
-	// debugPortals = SSFA::FindPortals(nodes, *pNavGraph->GetNavPolygon());
-	// finalPath = SSFA::OptimizePortals(debugPortals, *pNavGraph->GetNavPolygon());
+	// Extra: Run optimizer on new graph (First check if everything works without SSFA!)
+	debugPortals = SSFA::FindPortals(nodePath, *pNavGraph->GetNavPolygon());
+	finalPath = SSFA::OptimizePortals(debugPortals, *pNavGraph->GetNavPolygon());
+	
+	// finalPath.reserve(nodePath.size());
+	//
+	// for (auto iter = nodePath.rbegin(); iter != nodePath.rend(); ++iter)
+	// {
+	// 	finalPath.emplace_back((*iter)->GetPosition());
+	// }
 	
 	return finalPath;
 }

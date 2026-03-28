@@ -1,5 +1,7 @@
 #include "GraphRenderer.h"
 
+#include "GraphTheory/Algorithms/NavGraphPathfinding.h"
+
 namespace GameAI
 {
 	GraphRenderer::GraphRenderer(UWorld* world)
@@ -49,6 +51,18 @@ namespace GameAI
 					DrawNode(*Node);
 				}
 			}
+		}
+	}
+
+	void GraphRenderer::RenderNavLines(std::vector<NavLine> const& NavLines) const
+	{
+		for (const auto& [P1, P2] : NavLines)
+		{
+			FTransform P1_Transform { FVector::UpVector.ToOrientationRotator(), FVector{P1, Graphs::DefaultGraphDrawHeight + 1} };
+			DrawDebugCircle(World, P1_Transform.ToMatrixNoScale(), 15.0f, 6, FColor::Magenta);
+			
+			FTransform P2_Transform { FVector::UpVector.ToOrientationRotator(), FVector{P2, Graphs::DefaultGraphDrawHeight + 1} };
+			DrawDebugCircle(World, P2_Transform.ToMatrixNoScale(), 15, 6, FColor::Green);
 		}
 	}
 }
