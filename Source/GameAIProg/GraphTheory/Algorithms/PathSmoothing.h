@@ -83,30 +83,28 @@ public:
 		auto apexPoint { Portals[0].P1};
 		Path.push_back(apexPoint);
 		
-		auto rightLegIter { Portals.begin() + 1 };
+		auto rightLegIter { std::next(Portals.begin(), 1) };
 		auto rightLeg { rightLegIter->P1 - apexPoint };
-		auto leftLegIter { Portals.begin() + 1 };
+		auto leftLegIter { std::next(Portals.begin(), 1) };
 		auto leftLeg { leftLegIter->P2 - apexPoint };
 		
-		auto portalIter { Portals.begin() + 2 };
-		
-		while (portalIter != Portals.end())
+		for (auto portalIter = std::next(Portals.begin(), 2);portalIter != Portals.end() - 1; ++portalIter)
 		{
 			// --- Right leg ---
-			auto newRightLeg { (rightLegIter + 1)->P1 - apexPoint };
+			auto newRightLeg { portalIter->P1 - apexPoint };
 			auto crossResult { FVector2D::CrossProduct(rightLeg, newRightLeg) };
 			
 			// Check if the new right leg is crossing the current one
-			if (crossResult < 0)
+			if (crossResult <= 0.0f)
 			{
 				crossResult = FVector2D::CrossProduct(leftLeg, newRightLeg);
 				
 				// Check if the new right leg is crossing the left one (Counterclockwise)
-				if (crossResult < 0)
+				if (crossResult <= 0.0f)
 				{
 					apexPoint = leftLegIter->P2;
 					Path.push_back(apexPoint);
-					portalIter = leftLegIter + 1;
+					portalIter = std::next(leftLegIter);
 					
 					if (portalIter != Portals.end())
 					{
@@ -124,20 +122,20 @@ public:
 			
 			// --- Left leg ---
 			
-			auto newLeftLeg { (leftLegIter + 1)->P2 - apexPoint };
+			auto newLeftLeg { portalIter->P2 - apexPoint };
 			crossResult = FVector2D::CrossProduct(leftLeg, newLeftLeg);
 			
 			// Check if the new left leg is crossing the current one (Clockwise)
-			if (crossResult > 0)
+			if (crossResult >= 0.0f)
 			{
 				crossResult = FVector2D::CrossProduct(rightLeg, newLeftLeg);
 				
 				// Check if the new left leg is crossing the right one (Clockwise)
-				if (crossResult > 0)
+				if (crossResult >= 0.0f)
 				{
 					apexPoint  = rightLegIter->P1;
 					Path.push_back(apexPoint);
-					portalIter = rightLegIter + 1;
+					portalIter = std::next(rightLegIter);
 					
 					if (portalIter != Portals.end())
 					{
@@ -153,7 +151,7 @@ public:
 				}
 			}
 			
-			++portalIter;
+			//std::advance(portalIter, 1);
 		}
 		
 		Path.push_back(Portals.back().P1);
