@@ -217,6 +217,7 @@ void ALevel_Navmesh::SetTarget()
 	GameAI::NavMeshPathfinding Pathfinder{};
 	
 	std::vector<FVector2D> debugNodePositions{};
+	DebugNavLines.clear();
 	
 	std::vector<FVector2D> Path =  Pathfinder.FindPath(Agent->GetPosition(), 
 	FVector2D{LatestMouseWorldPos}, NavigationGraph.get(), debugNodePositions, DebugNavLines);

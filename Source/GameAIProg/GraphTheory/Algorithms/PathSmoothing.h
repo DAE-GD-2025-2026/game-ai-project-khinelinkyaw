@@ -88,7 +88,9 @@ public:
 		auto leftLegIter { std::next(Portals.begin(), 1) };
 		auto leftLeg { leftLegIter->P2 - apexPoint };
 		
-		for (auto portalIter = std::next(Portals.begin(), 2);portalIter != Portals.end() - 1; ++portalIter)
+		auto portalIter = std::next(Portals.begin(), 2);
+		
+		while (portalIter < Portals.end())
 		{
 			// --- Right leg ---
 			auto newRightLeg { portalIter->P1 - apexPoint };
@@ -100,7 +102,7 @@ public:
 				crossResult = FVector2D::CrossProduct(leftLeg, newRightLeg);
 				
 				// Check if the new right leg is crossing the left one (Counterclockwise)
-				if (crossResult <= 0.0f)
+				if (crossResult < 0.0f)
 				{
 					apexPoint = leftLegIter->P2;
 					Path.push_back(apexPoint);
@@ -121,7 +123,6 @@ public:
 			}
 			
 			// --- Left leg ---
-			
 			auto newLeftLeg { portalIter->P2 - apexPoint };
 			crossResult = FVector2D::CrossProduct(leftLeg, newLeftLeg);
 			
@@ -131,7 +132,7 @@ public:
 				crossResult = FVector2D::CrossProduct(rightLeg, newLeftLeg);
 				
 				// Check if the new left leg is crossing the right one (Clockwise)
-				if (crossResult >= 0.0f)
+				if (crossResult > 0.0f)
 				{
 					apexPoint  = rightLegIter->P1;
 					Path.push_back(apexPoint);
@@ -143,15 +144,15 @@ public:
 						rightLeg = rightLegIter->P1 - apexPoint;
 						leftLeg = leftLegIter->P2 - apexPoint;
 					}
-					else
-					{
-						leftLeg = newLeftLeg;
-						leftLegIter = portalIter;
-					}
+				}
+				else
+				{
+					leftLeg = newLeftLeg;
+					leftLegIter = portalIter;
 				}
 			}
 			
-			//std::advance(portalIter, 1);
+			++portalIter;
 		}
 		
 		Path.push_back(Portals.back().P1);
