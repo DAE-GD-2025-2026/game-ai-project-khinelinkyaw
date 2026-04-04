@@ -85,11 +85,8 @@ public:
 		
 		while (portalIter < Portals.end())
 		{
-			//auto leftLeg { leftLegIter->P2 - apexPoint };
 			auto rightLeg { GetLegVector(rightLegIter->P1) };
 			auto leftLeg { GetLegVector(leftLegIter->P2) };
-			
-			//auto newRightLeg { portalIter->P1 - apexPoint };
 			auto newRightLeg { GetLegVector(portalIter->P1) };
 			
 			// --- Right leg ---

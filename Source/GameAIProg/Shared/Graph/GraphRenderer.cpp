@@ -59,10 +59,10 @@ namespace GameAI
 		for (const auto& [P1, P2] : NavLines)
 		{
 			FTransform P1_Transform { FVector::UpVector.ToOrientationRotator(), FVector{P1, Graphs::DefaultGraphDrawHeight + 1} };
-			DrawDebugCircle(World, P1_Transform.ToMatrixNoScale(), 15.0f, 6, FColor::Magenta);
+			DrawDebugCircle(World, P1_Transform.ToMatrixNoScale(), 20.0f, 6, FColor::Purple, false, -1, 0, 2);
 			
 			FTransform P2_Transform { FVector::UpVector.ToOrientationRotator(), FVector{P2, Graphs::DefaultGraphDrawHeight + 1} };
-			DrawDebugCircle(World, P2_Transform.ToMatrixNoScale(), 15, 6, FColor::Green);
+			DrawDebugCircle(World, P2_Transform.ToMatrixNoScale(), 20.0f, 6, FColor::Green, false, -1, 0, 2);
 		}
 	}
 }
