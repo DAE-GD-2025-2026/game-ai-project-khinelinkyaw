@@ -67,12 +67,6 @@ public:
 			
 			Portals.push_back(newNavLine);
 		}
-		
-			//Redetermine it's "orientation" based on the required path (left-right vs right-left) - p1 should be right point
-
-			//Store portal
-
-		//Add degenerate portal to force end evaluation
 
 		return Portals;
 	}
@@ -84,19 +78,24 @@ public:
 		Path.push_back(apexPoint);
 		
 		auto rightLegIter { std::next(Portals.begin(), 1) };
-		auto rightLeg { rightLegIter->P1 - apexPoint };
 		auto leftLegIter { std::next(Portals.begin(), 1) };
-		auto leftLeg { leftLegIter->P2 - apexPoint };
-		
 		auto portalIter = std::next(Portals.begin(), 2);
+		
+		auto GetLegVector( [&apexPoint](FVector2D const& legPos){ return legPos - apexPoint; } );
 		
 		while (portalIter < Portals.end())
 		{
+			//auto leftLeg { leftLegIter->P2 - apexPoint };
+			auto rightLeg { GetLegVector(rightLegIter->P1) };
+			auto leftLeg { GetLegVector(leftLegIter->P2) };
+			
+			//auto newRightLeg { portalIter->P1 - apexPoint };
+			auto newRightLeg { GetLegVector(portalIter->P1) };
+			
 			// --- Right leg ---
-			auto newRightLeg { portalIter->P1 - apexPoint };
 			auto crossResult { FVector2D::CrossProduct(rightLeg, newRightLeg) };
 			
-			// Check if the new right leg is crossing the current one
+			// Check if the new right leg is crossing or overlapping the current one (Counterclockwise)
 			if (crossResult <= 0.0f)
 			{
 				crossResult = FVector2D::CrossProduct(leftLeg, newRightLeg);
@@ -106,27 +105,23 @@ public:
 				{
 					apexPoint = leftLegIter->P2;
 					Path.push_back(apexPoint);
-					portalIter = std::next(leftLegIter);
 					
-					if (portalIter != Portals.end())
-					{
-						rightLegIter = leftLegIter = portalIter;
-						rightLeg = rightLegIter->P1 - apexPoint;
-						leftLeg = leftLegIter->P2 - apexPoint;
-					}
+					rightLegIter = leftLegIter = portalIter = std::next(leftLegIter);
 				}
 				else
 				{
-					rightLeg = newRightLeg;
 					rightLegIter = portalIter;
 				}
 			}
 			
 			// --- Left leg ---
-			auto newLeftLeg { portalIter->P2 - apexPoint };
+			rightLeg = GetLegVector(rightLegIter->P1);
+			leftLeg = GetLegVector(leftLegIter->P2);
+			auto newLeftLeg { GetLegVector(portalIter->P2) };
+			
 			crossResult = FVector2D::CrossProduct(leftLeg, newLeftLeg);
 			
-			// Check if the new left leg is crossing the current one (Clockwise)
+			// Check if the new left leg is crossing or overlapping the current one (Clockwise)
 			if (crossResult >= 0.0f)
 			{
 				crossResult = FVector2D::CrossProduct(rightLeg, newLeftLeg);
@@ -136,18 +131,11 @@ public:
 				{
 					apexPoint  = rightLegIter->P1;
 					Path.push_back(apexPoint);
-					portalIter = std::next(rightLegIter);
 					
-					if (portalIter != Portals.end())
-					{
-						rightLegIter = leftLegIter = portalIter;
-						rightLeg = rightLegIter->P1 - apexPoint;
-						leftLeg = leftLegIter->P2 - apexPoint;
-					}
+					rightLegIter = leftLegIter = portalIter = std::next(rightLegIter);
 				}
 				else
 				{
-					leftLeg = newLeftLeg;
 					leftLegIter = portalIter;
 				}
 			}
@@ -156,31 +144,6 @@ public:
 		}
 		
 		Path.push_back(Portals.back().P1);
-		
-		//P1 == right point of portal, P2 == left point of portal
-		
-			//--- RIGHT CHECK ---
-			//1. See if moving funnel inwards - RIGHT
-			
-				//2. See if new line degenerates a line segment - RIGHT
-				
-					//Leftleg becomes new apex point
-
-					//Calculate new legs (if not the end)
-
-
-			//--- LEFT CHECK ---
-			//1. See if moving funnel inwards - LEFT
-
-				//2. See if new line degenerates a line segment - LEFT
-
-					//Rightleg becomes new apex point
-
-					//Calculate new legs (if not the end)
-
-
-		// Add last path point
-
 		return Path;
 	}
 private:
