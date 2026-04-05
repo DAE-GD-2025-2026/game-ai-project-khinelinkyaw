@@ -46,32 +46,37 @@ SteeringOutput PathFollow::CalculateSteering(float DeltaTime, ASteeringAgent& Ag
 
 void PathFollow::GotoNextPathPoint()
 {
+	// ++currentPathIndex;
+	// if (currentPathIndex >= static_cast<int>(pathVec.size()))
+	// {
+	// 	currentPathIndex = 0;
+	// }
+	//
+	// if (pathVec.empty())
+	// {
+	// 	return;
+	// }
+	//
+	// FTargetData PathTarget{pathVec[currentPathIndex]};
+	// //Move to the next node
+	// pSeek->SetTarget(PathTarget);
+	// pCurrentSteering = pSeek;
+	
 	++currentPathIndex;
-	if (currentPathIndex >= static_cast<int>(pathVec.size()))
+	if (currentPathIndex >= static_cast<int>(pathVec.size())) return;
+	
+	if (currentPathIndex == pathVec.size() -1)
 	{
-		currentPathIndex = 0;
+		FTargetData PathTarget{pathVec[currentPathIndex]};
+		//We have reached the last node
+		pArrive->SetTarget(PathTarget);
+		pCurrentSteering = pArrive;
 	}
-	
-	
-	FTargetData PathTarget{pathVec[currentPathIndex]};
-	//Move to the next node
-	pSeek->SetTarget(PathTarget);
-	pCurrentSteering = pSeek;
-	
-	//if (currentPathIndex >= static_cast<int>(pathVec.size())) return;
-	
-	// if (currentPathIndex == pathVec.size() -1)
-	// {
-	// 	FTargetData PathTarget{pathVec[currentPathIndex]};
-	// 	//We have reached the last node
-	// 	pArrive->SetTarget(PathTarget);
-	// 	pCurrentSteering = pSeek;
-	// }
-	// else
-	// {
-	// 	FTargetData PathTarget{pathVec[currentPathIndex]};
-	// 	//Move to the next node
-	// 	pSeek->SetTarget(PathTarget);
-	// 	pCurrentSteering = pSeek;
-	// }
+	else
+	{
+		FTargetData PathTarget{pathVec[currentPathIndex]};
+		//Move to the next node
+		pSeek->SetTarget(PathTarget);
+		pCurrentSteering = pSeek;
+	}
 }

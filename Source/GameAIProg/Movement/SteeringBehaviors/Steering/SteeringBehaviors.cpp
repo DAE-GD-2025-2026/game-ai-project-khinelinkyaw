@@ -6,21 +6,24 @@ SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
 	
-	FVector const FacingVector{ Agent.GetActorRotation().Vector() };
-	FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector() };
-	FVector const CrossProduct {FVector::CrossProduct(FacingVector, TargetDirection)};
-	Steering.AngularVelocity = CrossProduct.Z;
-
-	FRotator NextRotation { Agent.GetActorRotation() };
-	NextRotation.Yaw += Steering.AngularVelocity * Agent.GetMaxAngularSpeed() * DeltaT;
+	// FVector const FacingVector{ Agent.GetActorRotation().Vector() };
+	// FVector const TargetDirection{ UKismetMathLibrary::FindLookAtRotation(Agent.GetActorLocation(), FVector{Target.Position, 0.f}).Vector() };
+	// FVector const CrossProduct {FVector::CrossProduct(FacingVector, TargetDirection)};
+	// Steering.AngularVelocity = CrossProduct.Z;
+	//
+	// FRotator NextRotation { Agent.GetActorRotation() };
+	// NextRotation.Yaw += Steering.AngularVelocity * Agent.GetMaxAngularSpeed() * DeltaT;
+	//
+	// Steering.LinearVelocity = static_cast<FVector2D>(NextRotation.Vector()) * Agent.GetMaxLinearSpeed() * DeltaT;
+	// double const TargetDistance = (Target.Position - Agent.GetPosition()).Length();
+	//
+	// if (TargetDistance < Agent.GetMaxLinearSpeed())
+	// {
+	// 	Steering.LinearVelocity = Steering.LinearVelocity.GetClampedToSize(0, TargetDistance/Agent.GetMaxLinearSpeed());
+	// }
 	
-	Steering.LinearVelocity = static_cast<FVector2D>(NextRotation.Vector()) * Agent.GetMaxLinearSpeed() * DeltaT;
-	double const TargetDistance = (Target.Position - Agent.GetPosition()).Length();
-	
-	if (TargetDistance < Agent.GetMaxLinearSpeed())
-	{
-		Steering.LinearVelocity = Steering.LinearVelocity.GetClampedToSize(0, TargetDistance/Agent.GetMaxLinearSpeed());
-	}
+	Steering.LinearVelocity = Target.Position - Agent.GetPosition();
+	//Steering.LinearVelocity = Seek::CalculateLinearVelocity(DeltaT, Agent, Target.Position);
 	
 	return Steering;
 }
@@ -62,20 +65,10 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 
 	if (auto const TargetDistance = TargetVector.Length(); TargetDistance < SlowRadius)
 	{
-		if (IsSlowing == false)
-		{
-			OriginalSpeed = Agent.GetMaxLinearSpeed();
-			IsSlowing = true;
-		}
-		
 		auto const SpeedSlowRate = (TargetDistance - TargetRadius)/(SlowRadius - TargetRadius);
-		Agent.SetMaxLinearSpeed(OriginalSpeed * SpeedSlowRate);
+		Steering.LinearVelocity *= SpeedSlowRate * DeltaT;
 	}
-	else if (IsSlowing == true)
-	{
-		Agent.SetMaxLinearSpeed(OriginalSpeed);
-		IsSlowing = false;
-	}
+	
 	return Steering;
 }
 

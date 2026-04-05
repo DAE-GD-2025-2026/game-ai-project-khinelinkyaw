@@ -98,24 +98,6 @@ namespace GameAI
 					break;
 				}
 			}
-			
-			// auto OddNodeIter { std::ranges::find_if(Nodes, [graphCopy](Node const* CurNode)
-			// {
-			// 	auto Connections { graphCopy.FindConnectionsFrom(CurNode->GetId())};
-			// 	
-			// 	if (Connections.size() % 2 != 0)
-			// 	{
-			// 		return true;
-			// 	}
-			// 	return false;
-			// })};
-			//
-			// if (OddNodeIter == Nodes.end())
-			// {
-			// 	return Path;
-			// }
-			//
-			// currentNodeId = (*OddNodeIter)->GetId();
 		}
 		else
 		{

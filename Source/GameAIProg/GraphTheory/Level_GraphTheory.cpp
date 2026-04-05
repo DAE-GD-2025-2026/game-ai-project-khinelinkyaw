@@ -43,7 +43,6 @@ void ALevel_GraphTheory::BeginPlay()
 	
 	// TODO Make the graph and a couple connected nodes here...
 	Renderer = GameAI::GraphRenderer{GetWorld()};
-	Graph.AddNode(GraphNodeFactory<Node>().CreateNode({0.f, 0.f}));
 	
 	// Spawn the Agent
 	Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, 
@@ -111,7 +110,7 @@ void ALevel_GraphTheory::Tick(float DeltaTime)
 		auto EulerianType { PathFinding.IsEulerian() };
 		auto Path {PathFinding.FindPath(EulerianType)};
 		UpdateAgentPath(Path);
-		Graph.DisableGraphChange();
+		Graph.ResetGraphChanged();
 	}
 }
 

@@ -50,8 +50,6 @@ class Arrive : public ISteeringBehavior
 private:
 	float TargetRadius{200.f};
 	float SlowRadius{600.f};
-	float OriginalSpeed{};
-	bool IsSlowing{false};
 	
 public:
 	Arrive() = default;

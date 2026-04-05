@@ -35,7 +35,23 @@ namespace GameAI
     {
         return Id == OtherPtr->Id;
     }
-    
+
+    TerrainNode::TerrainNode(FVector2D const& Position, Type Type)
+        : Node{Position}
+        , Terrain{Type}
+    {
+    }
+
+    void TerrainNode::SetType(Type NewType)
+    {
+        Terrain = NewType;
+    }
+
+    TerrainNode::Type TerrainNode::GetType() const
+    {
+        return Terrain;
+    }
+
 #pragma endregion Nodes
 
 #pragma region Connections
@@ -67,7 +83,9 @@ namespace GameAI
 
     Connection Connection::GetInverseCopy() const
     {
-        return Connection{ToId, FromId};
+        Connection Conn{ToId, FromId};
+        Conn.SetWeight(Weight);
+        return Conn;
     }
 
     bool Connection::operator==(const Connection& Other) const
@@ -79,11 +97,13 @@ namespace GameAI
 #pragma region Graph
     Graph::Graph(bool isDirectional)
         : bIsDirectional{isDirectional}
+        , bHasGraphChanged{true}
     {
     }
 
     Graph::Graph(Graph const & Other)
         : bIsDirectional{Other.bIsDirectional}
+        , bHasGraphChanged{Other.bHasGraphChanged}
     {
         Nodes.reserve(Other.Nodes.size());
         for (std::unique_ptr<Node> const & OtherNode : Other.Nodes)
@@ -164,7 +184,6 @@ namespace GameAI
 
         NewNode->SetId(static_cast<int>(Nodes.size()));
         Nodes.push_back(std::move(NewNode));
-        bIsGraphChanged = true;
         return Nodes.back()->GetId();
     }
 
@@ -187,7 +206,6 @@ namespace GameAI
 
         // Mark node as invalid (keep it in the vector to preserve indices)
         Nodes[NodeToRemoveId]->SetId(Graphs::InvalidNodeId);
-        bIsGraphChanged = true;
         return true;
     }
 
@@ -234,6 +252,16 @@ namespace GameAI
         return Result;
     }
 
+    std::vector<Connection*> Graph::FindConnectionsWith(int NodeId) const
+    {
+        std::vector<Connection*> Result{};
+        auto FromConnections = FindConnectionsFrom(NodeId);
+        auto ToConnections = FindConnectionsTo(NodeId);
+        std::ranges::move(FromConnections, std::back_inserter(Result));
+        std::ranges::move(ToConnections, std::back_inserter(Result));
+        return Result;
+    }
+
     void Graph::AddConnection(std::unique_ptr<Connection> NewConnection)
     {
         // Get an inverse copy for later
@@ -261,8 +289,6 @@ namespace GameAI
             // Also add the inverse connection
             Connections.push_back(std::make_unique<Connection>(InverseNew));
         }
-        
-        bIsGraphChanged = true;
     }
 
     void Graph::AddConnection(int FromNodeId, int ToNodeId)
@@ -285,7 +311,6 @@ namespace GameAI
                 [&](std::unique_ptr<Connection> const & Element){return *Element.get() == InverseConnection;});
         }
 			
-        bIsGraphChanged = true;
         return AmountRemoved > 0;
     }
 
@@ -301,6 +326,28 @@ namespace GameAI
         return false;
     }
 
+    bool Graph::RemoveConnectionsFrom(int FromId)
+    {
+        return 0 < std::erase_if(Connections,
+            [=](auto const & Connection){return Connection->GetFromId() == FromId;});
+    }
+
+    bool Graph::RemoveConnectionsTo(int ToId)
+    {
+        return 0 < std::erase_if(Connections,
+    [=](auto const & Connection){return Connection->GetToId() == ToId;});
+    }
+
+    bool Graph::HasGraphChanged() const
+    {
+        return bHasGraphChanged;
+    }
+
+    void Graph::ResetGraphChanged()
+    {
+        bHasGraphChanged = false;
+    }
+
     bool Graph::GetIsDirectional() const
     {
         return bIsDirectional;
@@ -309,16 +356,6 @@ namespace GameAI
     Graph Graph::Clone() const
     {
         return Graph{*this};
-    }
-
-    bool Graph::HasGraphChanged() const
-    {
-        return bIsGraphChanged;
-    }
-
-    void Graph::DisableGraphChange()
-    {
-        bIsGraphChanged = false;
     }
 
     void Graph::SetConnectionCostsToDistances()
