@@ -67,7 +67,6 @@ std::vector<FVector2D> NavMeshPathfinding::FindPath(const FVector2D& startPos, c
 	
 	auto nodePath = AStarAlgo.FindPath(StartNode.get(), EndNode.get());
 	
-	std::ranges::reverse(nodePath);
 	//Debug Visualisation
 
 	// Extra: Run optimizer on new graph (First check if everything works without SSFA!)
