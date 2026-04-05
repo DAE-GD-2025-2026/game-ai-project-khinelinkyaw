@@ -10,9 +10,30 @@ AStar::AStar(Graph* const pGraph, HeuristicFunctions::Heuristic hFunction)
 {
 }
 
-std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
+std::vector<Node*> AStar::BacktrackFullPath(std::vector<NodeRecord> const& ClosedList, NodeRecord const& StartingNodeRecord)
 {
 	std::vector<Node*> Path{};
+	NodeRecord CurrentNodeRecord{ StartingNodeRecord };
+	
+	while (CurrentNodeRecord.pConnection != nullptr)
+	{
+		Path.push_back(CurrentNodeRecord.pNode);
+		
+		auto NextNodeIter = std::ranges::find_if(ClosedList, [&CurrentNodeRecord](NodeRecord const& Record)
+		{
+			return CurrentNodeRecord.pConnection->GetFromId() == Record.pNode->GetId();
+		});
+		
+		CurrentNodeRecord = *NextNodeIter;
+	}
+	
+	Path.push_back(CurrentNodeRecord.pNode);
+	std::ranges::reverse(Path);
+	return Path;
+}
+
+std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
+{
 	std::vector<NodeRecord> OpenList{};
 	std::vector<NodeRecord> ClosedList{};
 	
@@ -46,9 +67,7 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 		
 		for (auto Conn : Connections)
 		{
-			auto NeigborNodeId { Conn->GetToId() };
-			
-			NeighborNodeRecord.pNode = pGraph->GetNode(NeigborNodeId).get();
+			NeighborNodeRecord.pNode = pGraph->GetNode(Conn->GetToId()).get();
 			NeighborNodeRecord.pConnection = Conn;
 			NeighborNodeRecord.costSoFar = CurrentNodeRecord.costSoFar + Conn->GetWeight();
 			NeighborNodeRecord.estimatedTotalCost = NeighborNodeRecord.costSoFar + GetHeuristicCost(NeighborNodeRecord.pNode, pGoalNode);
@@ -76,21 +95,22 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 		std::erase(OpenList, CurrentNodeRecord);
 	}
 	
-	while (CurrentNodeRecord.pConnection != nullptr)
+	auto GoalNodeIter = std::ranges::find_if(ClosedList, [&pGoalNode](NodeRecord const& InnerRecord)
 	{
-		Path.push_back(CurrentNodeRecord.pNode);
-		
-		auto NextNodeIter = std::ranges::find_if(ClosedList, [&CurrentNodeRecord](NodeRecord const& Record)
+		return InnerRecord.pNode->GetId() == pGoalNode->GetId();
+	});
+	
+	if (GoalNodeIter == ClosedList.end())
+	{
+		auto ClosestNodeIter { std::ranges::min_element(ClosedList, [](NodeRecord const& RecordA, NodeRecord const& RecordB)
 		{
-			return CurrentNodeRecord.pConnection->GetFromId() == Record.pNode->GetId();
-		});
+			return RecordA.estimatedTotalCost < RecordB.estimatedTotalCost;
+		})};
 		
-		CurrentNodeRecord = *NextNodeIter;
+		CurrentNodeRecord = *ClosestNodeIter;
 	}
 	
-	Path.push_back(CurrentNodeRecord.pNode);
-	std::ranges::reverse(Path);
-	return Path;
+	return BacktrackFullPath(ClosedList, CurrentNodeRecord);
 }
 
 float AStar::GetHeuristicCost(Node* const pStartNode, Node* const pEndNode) const

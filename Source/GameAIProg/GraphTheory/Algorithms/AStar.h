@@ -34,8 +34,8 @@ namespace GameAI
 		};
 
 		std::vector<Node*> FindPath(Node* const pStartNode, Node* const pDestinationNode);
-
 	private:
+		std::vector<Node*> BacktrackFullPath(std::vector<NodeRecord> const& ClosedList, NodeRecord const& StartingNodeRecord);
 		float GetHeuristicCost(Node* const pStartNode, Node* const pEndNode) const;
 
 		Graph* pGraph;
