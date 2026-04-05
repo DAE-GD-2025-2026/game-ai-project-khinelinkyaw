@@ -20,10 +20,11 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 	CurrentNodeRecord.pNode = pStartNode;
 	CurrentNodeRecord.pConnection = nullptr;
 	CurrentNodeRecord.costSoFar = 0.0f;
-	CurrentNodeRecord.estimatedTotalCost = CurrentNodeRecord.costSoFar + GetHeuristicCost(pStartNode, pGoalNode);
+	CurrentNodeRecord.estimatedTotalCost = GetHeuristicCost(pStartNode, pGoalNode);
 	OpenList.push_back(CurrentNodeRecord);
 	
-
+	NodeRecord NeighborNodeRecord{};
+	auto FindNeighborNodeId { [&NeighborNodeRecord](NodeRecord const& InnerRecord){ return InnerRecord.pNode->GetId() == NeighborNodeRecord.pNode->GetId(); } };
 	
 	while (!OpenList.empty())
 	{
@@ -44,16 +45,24 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 		{
 			auto NeigborNodeId { Conn->GetToId() };
 			
-			NodeRecord NeighborNodeRecord{};
 			NeighborNodeRecord.pNode = pGraph->GetNode(NeigborNodeId).get();
 			NeighborNodeRecord.pConnection = Conn;
-			NeighborNodeRecord.costSoFar = CurrentNodeRecord.costSoFar;
+			NeighborNodeRecord.costSoFar = CurrentNodeRecord.costSoFar + Conn->GetWeight();
 			NeighborNodeRecord.estimatedTotalCost = NeighborNodeRecord.costSoFar + GetHeuristicCost(NeighborNodeRecord.pNode, pGoalNode);
 			
-			auto ClosedListIter = std::ranges::find(ClosedList, NeighborNodeRecord);
+			auto OpenListIter = std::ranges::find_if(OpenList, FindNeighborNodeId);
+			auto ClosedListIter = std::ranges::find_if(ClosedList, FindNeighborNodeId);
 			
-			if (ClosedListIter != ClosedList.end())
+			if (OpenListIter != OpenList.end() and NeighborNodeRecord.costSoFar < OpenListIter->costSoFar)
 			{
+				OpenList.erase(OpenListIter);
+				OpenList.push_back(NeighborNodeRecord);
+				continue;
+			}
+			if (ClosedListIter != ClosedList.end() and NeighborNodeRecord.costSoFar < ClosedListIter->costSoFar)
+			{
+				ClosedList.erase(ClosedListIter);
+				ClosedList.push_back(NeighborNodeRecord);
 				continue;
 			}
 			
@@ -68,7 +77,7 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 	{
 		Path.push_back(CurrentNodeRecord.pNode);
 		
-		auto NextNodeIter = std::ranges::find_if(ClosedList, [CurrentNodeRecord](NodeRecord const& Record)
+		auto NextNodeIter = std::ranges::find_if(ClosedList, [&CurrentNodeRecord](NodeRecord const& Record)
 		{
 			auto NextNodeId { CurrentNodeRecord.pConnection->GetFromId() };
 			if (NextNodeId == Record.pNode->GetId())
