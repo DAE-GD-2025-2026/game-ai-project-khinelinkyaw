@@ -1,7 +1,7 @@
 # Game AI Project
 
 ## Extra Assignment
-- Get to the closest node if the final destination could not be reached
+- Get to the closest node if the final destination could not be reached (Fallback Path)
 
 ## A-star Path Finding Algorithm
 - Handles special case when a node is visited for a second time
