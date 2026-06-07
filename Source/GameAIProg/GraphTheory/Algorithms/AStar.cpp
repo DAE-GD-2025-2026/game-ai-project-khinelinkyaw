@@ -41,7 +41,8 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 	CurrentNodeRecord.pNode = pStartNode;
 	CurrentNodeRecord.pConnection = nullptr;
 	CurrentNodeRecord.costSoFar = 0.0f;
-	CurrentNodeRecord.estimatedTotalCost = GetHeuristicCost(pStartNode, pGoalNode);
+	CurrentNodeRecord.distanceToDest = GetHeuristicCost(pStartNode, pGoalNode);
+	CurrentNodeRecord.CalculateEstimatedTotalCost();
 	OpenList.push_back(CurrentNodeRecord);
 	
 	NodeRecord NeighborNodeRecord{};
@@ -70,7 +71,8 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 			NeighborNodeRecord.pNode = pGraph->GetNode(Conn->GetToId()).get();
 			NeighborNodeRecord.pConnection = Conn;
 			NeighborNodeRecord.costSoFar = CurrentNodeRecord.costSoFar + Conn->GetWeight();
-			NeighborNodeRecord.estimatedTotalCost = NeighborNodeRecord.costSoFar + GetHeuristicCost(NeighborNodeRecord.pNode, pGoalNode);
+			NeighborNodeRecord.distanceToDest = GetHeuristicCost(NeighborNodeRecord.pNode, pGoalNode);
+			NeighborNodeRecord.CalculateEstimatedTotalCost();
 			
 			auto OpenListIter = std::ranges::find_if(OpenList, FindNeighborNodeId);
 			auto ClosedListIter = std::ranges::find_if(ClosedList, FindNeighborNodeId);
@@ -104,7 +106,7 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 	{
 		auto ClosestNodeIter { std::ranges::min_element(ClosedList, [](NodeRecord const& RecordA, NodeRecord const& RecordB)
 		{
-			return RecordA.estimatedTotalCost < RecordB.estimatedTotalCost;
+			return RecordA.distanceToDest < RecordB.distanceToDest;
 		})};
 		
 		CurrentNodeRecord = *ClosestNodeIter;

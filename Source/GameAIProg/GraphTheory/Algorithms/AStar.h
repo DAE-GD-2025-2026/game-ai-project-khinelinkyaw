@@ -17,8 +17,14 @@ namespace GameAI
 			Node* pNode = nullptr;
 			Connection* pConnection = nullptr;
 			float costSoFar = 0.f; // accumulated g-costs of all the connections leading up to this one
+			float distanceToDest = 0.f;
 			float estimatedTotalCost = 0.f; // f-cost (= costSoFar + h-cost)
-
+			
+			void CalculateEstimatedTotalCost()
+			{
+				estimatedTotalCost = costSoFar + distanceToDest;
+			}
+			
 			bool operator==(const NodeRecord& other) const
 			{
 				return pNode == other.pNode
